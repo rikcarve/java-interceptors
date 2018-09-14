@@ -12,9 +12,9 @@ allprojects {
 
             pkg {
                 userOrg = 'opentracing'
-                repo = 'java-interceptors'
+                repo = 'maven'
+                name = 'java-interceptors'
                 user = System.getenv("BINTRAY_API_USER")
-                name = 'maven'
                 licenses = ['Apache-2.0']
                 labels = ['distributed tracing', 'opentracing', 'opentracing-contrib']
             }
