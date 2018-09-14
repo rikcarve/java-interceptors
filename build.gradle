@@ -4,6 +4,7 @@ plugins {
 
 apply plugin: 'java-library'
 apply plugin: "jacoco"
+apply plugin: "maven"
 
 group = 'io.opentracing.contrib'
 description = "OpenTracing Contrib - Framework instrumentation for Java Interceptors"
@@ -17,7 +18,21 @@ repositories {
 }
 
 dependencies {
-    implementation 'javax:javaee-api:8.0'
+    api 'org.eclipse.microprofile.opentracing:microprofile-opentracing-api:1.1'
+
+    implementation 'javax:javaee-api:7.0'
     implementation 'io.opentracing:opentracing-api:0.31.0'
-    implementation 'org.eclipse.microprofile.opentracing:microprofile-opentracing-api:1.1'
+    implementation 'io.opentracing.contrib:opentracing-tracerresolver:0.1.5'
+
+    testCompile 'junit:junit:4.12'
+    testImplementation 'io.opentracing:opentracing-mock:0.31.0'
+    testImplementation 'org.apache.tomee:openejb-core:7.1.0'
 }
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
+}
+check.dependsOn jacocoTestReport
