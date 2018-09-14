@@ -1,6 +1,6 @@
 shipkit {
     gitHub.repository = "opentracing-contrib/java-interceptors"
-    gitHub.readOnlyAuthToken = System.getenv("GH_READ_TOKEN") || "4a7f0273a1061960dff3e114cc45c1b3650d07c8"
+    gitHub.readOnlyAuthToken = System.getenv("GH_READ_TOKEN") ?: "4a7f0273a1061960dff3e114cc45c1b3650d07c8"
     gitHub.writeAuthToken = System.getenv("GH_WRITE_TOKEN")
     releaseNotes.file = "CHANGELOG.md"
 }
