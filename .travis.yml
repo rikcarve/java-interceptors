@@ -18,6 +18,5 @@ jobs:
 
     - stage: deploy
       name: "Release"
-      install: true
       script: ./gradlew ciPerformRelease
       if: tag =~ /^release\/v.[\d\.]+(\-.*)?$/
