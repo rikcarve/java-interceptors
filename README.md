@@ -5,13 +5,12 @@
 This library provides instrumentation for Java Interceptors.
 
 ## Development
-```shell
+```bash
 ./gradlew check
 ```
 
 ## Release
 Follow instructions in [RELEASE](RELEASE.md)
-
 
    [ci-img]: https://travis-ci.org/opentracing-contrib/java-interceptors.svg?branch=master
    [ci]: https://travis-ci.org/opentracing-contrib/java-interceptors
