@@ -1,0 +1,22 @@
+language: java
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+
+stages:
+  - name: test
+  - name: deploy
+    if: type != pull_request
+
+jobs:
+  include:
+    - stage: test
+      name: "Unit Tests"
+
+    - stage: deploy
+      name: "Release"
+      install: true
+      script: ./gradlew ciPerformRelease
+      if: tag =~ /^release\/v.[\d\.]+(\-.*)?$/

@@ -1,0 +1,23 @@
+plugins {
+    id "org.shipkit.java" version "1.0.12"
+}
+
+apply plugin: 'java-library'
+apply plugin: "jacoco"
+
+group = 'io.opentracing.contrib.interceptor'
+description = "OpenTracing Contrib - Framework instrumentation for Java Interceptors"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'javax:javaee-api:8.0'
+    implementation 'io.opentracing:opentracing-api:0.31.0'
+    implementation 'org.eclipse.microprofile.opentracing:microprofile-opentracing-api:1.1'
+}
