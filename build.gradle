@@ -1,5 +1,5 @@
 plugins {
-    id "org.shipkit.java" version "1.0.12"
+    id "org.shipkit.java" version "2.0.31"
 }
 
 apply plugin: 'java-library'
