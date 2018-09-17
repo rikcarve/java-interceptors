@@ -23,8 +23,9 @@ import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @RunWith(ApplicationComposer.class)
 public class EjbDeploymentTestCase {
@@ -99,17 +100,15 @@ public class EjbDeploymentTestCase {
     }
 
     @Test
-    public void asyncEjbIsTraced() throws InterruptedException {
+    public void asyncEjbIsTraced() throws InterruptedException, TimeoutException, ExecutionException {
         MockTracer mockTracer = (MockTracer) tracer;
 
-        CountDownLatch latch = new CountDownLatch(1);
-        asyncEJB.doSomethingAsync(latch);
-        latch.await(1, TimeUnit.SECONDS);
+        Void ignored = asyncEJB.doSomethingAsync().get(1, TimeUnit.SECONDS);
         Assert.assertEquals(1, mockTracer.finishedSpans().size());
     }
 
     @Test
-    public void nestedCalls() {
+    public void nestedCalls() throws InterruptedException, ExecutionException, TimeoutException {
         MockTracer mockTracer = (MockTracer) tracer;
 
         Assert.assertEquals(0, mockTracer.finishedSpans().size());

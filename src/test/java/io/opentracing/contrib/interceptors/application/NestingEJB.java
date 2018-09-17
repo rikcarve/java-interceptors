@@ -7,9 +7,10 @@ import javax.annotation.Resource;
 import javax.ejb.EJBContext;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static io.opentracing.contrib.interceptors.OpenTracingInterceptor.SPAN_CONTEXT;
 
@@ -26,14 +27,9 @@ public class NestingEJB {
     @Resource
     EJBContext ctx;
 
-    public void doSomethingNested() {
-        CountDownLatch latch = new CountDownLatch(1);
-        asyncEJB.doSomethingAsync((SpanContext) ctx.getContextData().get(SPAN_CONTEXT), latch);
-        try {
-            latch.await(1, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    public void doSomethingNested() throws ExecutionException, InterruptedException, TimeoutException {
+        Future<Void> result = asyncEJB.doSomethingAsync((SpanContext) ctx.getContextData().get(SPAN_CONTEXT));
         interceptedEJB.action();
+        Void ignored = result.get(1, TimeUnit.SECONDS);
     }
 }
