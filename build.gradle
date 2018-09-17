@@ -9,8 +9,8 @@ apply plugin: "maven"
 group = 'io.opentracing.contrib'
 description = "OpenTracing Contrib - Framework instrumentation for Java Interceptors"
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
 
 repositories {
     mavenLocal()
