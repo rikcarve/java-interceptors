@@ -6,11 +6,13 @@ import io.opentracing.contrib.interceptors.application.AsyncEJB;
 import io.opentracing.contrib.interceptors.application.CustomOperationNameOnClass;
 import io.opentracing.contrib.interceptors.application.EndpointOnClass;
 import io.opentracing.contrib.interceptors.application.EndpointOnMethod;
+import io.opentracing.contrib.interceptors.application.ExceptionalEJB;
 import io.opentracing.contrib.interceptors.application.InterceptedEJB;
 import io.opentracing.contrib.interceptors.application.NestingEJB;
 import io.opentracing.contrib.interceptors.application.TracerProducer;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
+import io.opentracing.tag.Tags;
 import org.apache.openejb.config.EjbModule;
 import org.apache.openejb.jee.Beans;
 import org.apache.openejb.jee.EjbJar;
@@ -50,6 +52,9 @@ public class EjbDeploymentTestCase {
     @Inject
     CustomOperationNameOnClass customOperationNameOnClass;
 
+    @Inject
+    ExceptionalEJB exceptionalEJB;
+
     @Module
     public EjbModule module() {
         final EjbJar ejbJar = new EjbJar();
@@ -57,6 +62,7 @@ public class EjbDeploymentTestCase {
         ejbJar.addEnterpriseBean(new StatelessBean(CustomOperationNameOnClass.class));
         ejbJar.addEnterpriseBean(new StatelessBean(EndpointOnClass.class));
         ejbJar.addEnterpriseBean(new StatelessBean(EndpointOnMethod.class));
+        ejbJar.addEnterpriseBean(new StatelessBean(ExceptionalEJB.class));
         ejbJar.addEnterpriseBean(new StatelessBean(InterceptedEJB.class));
         ejbJar.addEnterpriseBean(new StatelessBean(NestingEJB.class));
 
@@ -157,6 +163,48 @@ public class EjbDeploymentTestCase {
         MockTracer mockTracer = (MockTracer) tracer;
         endpointOnClass.get();
         Assert.assertEquals(0, mockTracer.finishedSpans().size());
+    }
+
+    @Test
+    public void exceptionIsLogged() {
+        MockTracer mockTracer = (MockTracer) tracer;
+        Throwable throwed = null;
+
+        try {
+            exceptionalEJB.throwException();
+        } catch (Throwable t) {
+            throwed = t;
+        }
+        Assert.assertEquals(1, mockTracer.finishedSpans().size());
+        Assert.assertNotNull(throwed);
+        assertSpanHasErrorFor(mockTracer.finishedSpans().get(0), throwed);
+    }
+
+    @Test
+    public void runtimeExceptionIsLogged() {
+        MockTracer mockTracer = (MockTracer) tracer;
+        Throwable throwed = null;
+
+        try {
+            exceptionalEJB.throwRuntimeException();
+        } catch (Throwable t) {
+            throwed = t;
+        }
+        Assert.assertEquals(1, mockTracer.finishedSpans().size());
+        Assert.assertNotNull(throwed);
+
+        // runtimeExceptions get wrapped as EJBException, so, get the underlying cause
+        assertSpanHasErrorFor(mockTracer.finishedSpans().get(0), throwed.getCause());
+    }
+
+    private void assertSpanHasErrorFor(MockSpan span, Throwable throwed) {
+        Assert.assertTrue((Boolean) span.tags().get("error"));
+
+        // one is an event, the other should be error.object
+        Assert.assertEquals(1, span.logEntries().size());
+        MockSpan.LogEntry logEntry = span.logEntries().get(0);
+        Assert.assertEquals(Tags.ERROR.getKey(), logEntry.fields().get("event"));
+        Assert.assertEquals(throwed, logEntry.fields().get("error.object"));
     }
 
     private void assertSameTrace(List<MockSpan> spans) {

@@ -5,11 +5,10 @@ import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.tracerresolver.TracerResolver;
+import io.opentracing.tag.Tags;
 import org.eclipse.microprofile.opentracing.Traced;
 
 import javax.annotation.Priority;
-import javax.annotation.Resource;
-import javax.ejb.EJBContext;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
@@ -17,6 +16,8 @@ import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 import javax.ws.rs.Path;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 @Traced
@@ -89,6 +90,9 @@ public class OpenTracingInterceptor {
             }
 
             return ctx.proceed();
+        } catch (Exception e) {
+            logException(scope.span(), e);
+            throw e;
         } finally {
             scope.close();
         }
@@ -125,5 +129,13 @@ public class OpenTracingInterceptor {
             return classTraced.operationName();
         }
         return String.format("%s.%s", method.getDeclaringClass().getName(), method.getName());
+    }
+
+    private void logException(Span span, Exception e) {
+        Map<String, Object> errorLogs = new HashMap<String, Object>(2);
+        errorLogs.put("event", Tags.ERROR.getKey());
+        errorLogs.put("error.object", e);
+        span.log(errorLogs);
+        Tags.ERROR.set(span, true);
     }
 }
