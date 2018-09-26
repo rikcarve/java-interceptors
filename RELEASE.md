@@ -4,7 +4,8 @@ This project uses [Shipkit](http://shipkit.org) for most of the release manageme
 
 ## Automated
 
-1. Tag the release, like, `git tag release/v0.0.1` and push the tag to the main repository (`git push upstream v0.31.0`, if your `opentracing-contrib/java-interceptors` remote is called `upstream`)
+1. Tag the release: `git tag release/v0.1.0`
+1. Push the tag to the main repository: `git push --repo git@github.com:opentracing-contrib/java-interceptors.git release/v0.1.0`
 
 Once this is done, Travis will trigger a release. Shipkit then builds and uploads the release to Bintray.
 
@@ -22,7 +23,7 @@ Those are self-explanatory, but check the [Shipkit Getting Started](https://gith
 Do everything like the "Automated" session but instead of pushing the tag to the remote repository, run:
 
 ```bash
-git checkout release/v0.0.1
+git checkout release/v0.1.0
 ./gradlew performRelease
 ```
 
