@@ -5,7 +5,7 @@ This project uses [Shipkit](http://shipkit.org) for most of the release manageme
 ## Automated
 
 1. Tag the release: `git tag release/v0.1.0`
-1. Push the tag to the main repository: `git push --repo git@github.com:opentracing-contrib/java-interceptors.git release/v0.1.0`
+1. Push the tag to the main repository: `git push git@github.com:opentracing-contrib/java-interceptors.git release/v0.1.0`
 
 Once this is done, Travis will trigger a release. Shipkit then builds and uploads the release to Bintray.
 
