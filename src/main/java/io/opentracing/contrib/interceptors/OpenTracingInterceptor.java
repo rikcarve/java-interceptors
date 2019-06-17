@@ -71,29 +71,31 @@ public class OpenTracingInterceptor {
             }
         }
 
-        Scope scope = spanBuilder.startActive(true);
+        Span span = spanBuilder.start();
+        Scope scope = tracer.activateSpan(span);
         try {
             log.fine("Adding span context into the invocation context.");
-            ctx.getContextData().put(SPAN_CONTEXT, scope.span().context());
+            ctx.getContextData().put(SPAN_CONTEXT, span.context());
 
             if (contextParameterIndex >= 0) {
                 log.fine("Overriding the original span context with our new context.");
                 for (int i = 0 ; i < ctx.getParameters().length ; i++) {
                     if (ctx.getParameters()[contextParameterIndex] instanceof Span) {
-                        ctx.getParameters()[contextParameterIndex] = scope.span();
+                        ctx.getParameters()[contextParameterIndex] = span;
                     }
 
                     if (ctx.getParameters()[contextParameterIndex] instanceof SpanContext) {
-                        ctx.getParameters()[contextParameterIndex] = scope.span().context();
+                        ctx.getParameters()[contextParameterIndex] = span.context();
                     }
                 }
             }
 
             return ctx.proceed();
         } catch (Exception e) {
-            logException(scope.span(), e);
+            logException(span, e);
             throw e;
         } finally {
+            span.finish();
             scope.close();
         }
     }
