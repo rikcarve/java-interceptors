@@ -2,7 +2,7 @@
 
 # OpenTracing Java Interceptors instrumentation
 
-This library provides instrumentation for Java Interceptors.
+This library provides a Jakarta EE [Interceptor](https://jakarta.ee/specifications/platform/8/apidocs/javax/interceptor/Interceptor.html) that will add a new Span for any [`@Traced`](https://github.com/eclipse/microprofile-opentracing/blob/master/spec/src/main/asciidoc/microprofile-opentracing.asciidoc#the-traced-annotation)-annotated method. See the [Eclipse MicroProfile OpenTracing](https://github.com/eclipse/microprofile-opentracing/) for details.
 
 ## Development
 ```bash
