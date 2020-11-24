@@ -30,6 +30,8 @@ public class OpenTracingInterceptor {
     @Inject
     Instance<Tracer> tracerInstance;
 
+    private volatile Tracer tracer = null;
+
     @AroundInvoke
     public Object wrap(InvocationContext ctx) throws Exception {
         if (skipJaxRs(ctx.getMethod())) {
@@ -100,12 +102,22 @@ public class OpenTracingInterceptor {
         }
     }
 
+    // uses volatile read and synchronized block to avoid possible duplicate creation of Tracer in multi-threaded env
     public Tracer getTracer() {
-        if (null != tracerInstance && !tracerInstance.isUnsatisfied()) {
-            return this.tracerInstance.get();
+        Tracer val = tracer;
+        if (val != null) {
+            return val;
         }
-
-        return TracerResolver.resolveTracer();
+        synchronized(this) {
+            if (tracer == null) {
+                if (null != tracerInstance && !tracerInstance.isUnsatisfied()) {
+                    tracer = this.tracerInstance.get();
+                } else  {
+                    tracer = TracerResolver.resolveTracer();
+                }
+            }
+            return tracer;
+        }
     }
 
     private boolean traced(Method method) {
