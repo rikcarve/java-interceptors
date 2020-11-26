@@ -96,12 +96,10 @@ public class EjbDeploymentTestCase {
         MockTracer mockTracer = (MockTracer) tracer;
 
         Assert.assertEquals(0, mockTracer.finishedSpans().size());
-        Span span = tracer.buildSpan("spanIsIntercepted").start();
-        Scope scope = tracer.activateSpan(span);
+        Scope scope = tracer.buildSpan("spanIsIntercepted").startActive(true);
         try {
-            interceptedEJB.withSpanReadyToUse(span);
+            interceptedEJB.withSpanReadyToUse(scope.span());
         } finally {
-            span.finish();
             scope.close();
         }
         Assert.assertEquals(2, mockTracer.finishedSpans().size());
